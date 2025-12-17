@@ -37,13 +37,17 @@ Please write a compelling description (150-200 words) that:
 Only return the description text, no additional commentary.`;
 
     const result = await model.generateContent(prompt);
-    const response = await result.response;
+    const response = result.response;
     const generatedDescription = response.text().trim();
 
     res.json({ description: generatedDescription });
   } catch (error) {
     console.error('AI generation error:', error);
-    res.status(500).json({ message: 'Failed to generate description' });
+    console.error('Error details:', error.message);
+    res.status(500).json({ 
+      message: 'Failed to generate description',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
@@ -82,13 +86,17 @@ Please:
 Only return the enhanced description text, no additional commentary.`;
 
     const result = await model.generateContent(prompt);
-    const response = await result.response;
+    const response = result.response;
     const enhancedDescription = response.text().trim();
 
     res.json({ description: enhancedDescription });
   } catch (error) {
     console.error('AI enhancement error:', error);
-    res.status(500).json({ message: 'Failed to enhance description' });
+    console.error('Error details:', error.message);
+    res.status(500).json({ 
+      message: 'Failed to enhance description',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
