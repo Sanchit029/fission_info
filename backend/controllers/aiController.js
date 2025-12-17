@@ -19,7 +19,7 @@ const generateDescription = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
     const prompt = `Generate an engaging and professional event description for the following event:
 
@@ -69,7 +69,7 @@ const enhanceDescription = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
     const prompt = `Enhance and improve the following event description while maintaining its core message:
 
