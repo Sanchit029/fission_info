@@ -47,27 +47,7 @@ Only return the description text, no additional commentary.`;
   }
 };
 
-// @desc    Enhance existing event description using AI
-// @route   POST /api/ai/enhance-description
-// @access  Private
-const enhanceDescription = async (req, res) => {
-  try {
-    const { description, title } = req.body;
-
-    if (!description) {
-      return res.status(400).json({ message: 'Description is required' });
-    }
-
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(503).json({ 
-        message: 'AI service not configured. Please add your OpenAI API key.' 
-      });
-    }
-
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
- (Gemini)
+// @desc    Enhance existing event description using AI (Gemini)
 // @route   POST /api/ai/enhance-description
 // @access  Private
 const enhanceDescription = async (req, res) => {
@@ -103,4 +83,16 @@ Only return the enhanced description text, no additional commentary.`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const enhancedDescription = response.text()
+    const enhancedDescription = response.text().trim();
+
+    res.json({ description: enhancedDescription });
+  } catch (error) {
+    console.error('AI enhancement error:', error);
+    res.status(500).json({ message: 'Failed to enhance description' });
+  }
+};
+
+module.exports = {
+  generateDescription,
+  enhanceDescription,
+};
