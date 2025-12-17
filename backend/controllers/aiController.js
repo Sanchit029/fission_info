@@ -1,6 +1,6 @@
-const OpenAI = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// @desc    Generate event description using AI
+// @desc    Generate event description using AI (Gemini)
 // @route   POST /api/ai/generate-description
 // @access  Private
 const generateDescription = async (req, res) => {
@@ -11,16 +11,15 @@ const generateDescription = async (req, res) => {
       return res.status(400).json({ message: 'Event title is required' });
     }
 
-    // Check if OpenAI API key is configured
-    if (!process.env.OPENAI_API_KEY) {
+    // Check if Gemini API key is configured
+    if (!process.env.GEMINI_API_KEY) {
       return res.status(503).json({ 
-        message: 'AI service not configured. Please add your OpenAI API key.' 
+        message: 'AI service not configured. Please add your Gemini API key.' 
       });
     }
 
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `Generate an engaging and professional event description for the following event:
 
@@ -37,32 +36,13 @@ Please write a compelling description (150-200 words) that:
 
 Only return the description text, no additional commentary.`;
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert event marketing copywriter who creates engaging event descriptions.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      max_tokens: 300,
-      temperature: 0.7,
-    });
-
-    const generatedDescription = completion.choices[0].message.content.trim();
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const generatedDescription = response.text().trim();
 
     res.json({ description: generatedDescription });
   } catch (error) {
     console.error('AI generation error:', error);
-    
-    if (error.code === 'insufficient_quota') {
-      return res.status(503).json({ message: 'AI service quota exceeded' });
-    }
-    
     res.status(500).json({ message: 'Failed to generate description' });
   }
 };
@@ -87,6 +67,25 @@ const enhanceDescription = async (req, res) => {
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+ (Gemini)
+// @route   POST /api/ai/enhance-description
+// @access  Private
+const enhanceDescription = async (req, res) => {
+  try {
+    const { description, title } = req.body;
+
+    if (!description) {
+      return res.status(400).json({ message: 'Description is required' });
+    }
+
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(503).json({ 
+        message: 'AI service not configured. Please add your Gemini API key.' 
+      });
+    }
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `Enhance and improve the following event description while maintaining its core message:
 
@@ -102,32 +101,6 @@ Please:
 
 Only return the enhanced description text, no additional commentary.`;
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert event marketing copywriter who enhances event descriptions.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      max_tokens: 400,
-      temperature: 0.7,
-    });
-
-    const enhancedDescription = completion.choices[0].message.content.trim();
-
-    res.json({ description: enhancedDescription });
-  } catch (error) {
-    console.error('AI enhancement error:', error);
-    res.status(500).json({ message: 'Failed to enhance description' });
-  }
-};
-
-module.exports = {
-  generateDescription,
-  enhanceDescription,
-};
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const enhancedDescription = response.text()
